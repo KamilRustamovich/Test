@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MongoRepository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
@@ -14,9 +14,9 @@ export class UniversityService {
 
     constructor(
         @InjectRepository(Student)
-        private studentsRepository: Repository<Student>,
+        private studentsRepository: MongoRepository<Student>,
         @InjectRepository(Teacher)
-        private teachersRepository: Repository<Teacher>,
+        private teachersRepository: MongoRepository<Teacher>,
       ) {}
     
 
@@ -28,7 +28,7 @@ export class UniversityService {
         return await this.teachersRepository.find() 
     }
 
-    async getStudentById(id: number): Promise<Student> {
+    async getStudentById(id: string): Promise<Student> {
         try {
             const student = await this.studentsRepository.findOneOrFail(id, {
                 relations: ['teachers']
@@ -39,7 +39,7 @@ export class UniversityService {
         }
     }
 
-    async getTeacherById(id: number): Promise<Teacher> {
+    async getTeacherById(id: string): Promise<Teacher> {
         try {
             const teacher = await this.teachersRepository.findOneOrFail(id, {
                 relations: ['students']
@@ -58,6 +58,7 @@ export class UniversityService {
         const student2 = new Student()
         student2.fullName = 'Just a name2'
         await this.studentsRepository.save(student2)
+        console.log(student1)
 
         const newTeacher = this.teachersRepository.create(teacherDto)
         newTeacher.students = [student1, student2]
@@ -67,40 +68,43 @@ export class UniversityService {
     }
 
     async createStudent(studentDto: CreateStudentDto): Promise<Student> {
-        const teacher1 = new Teacher()
-        teacher1.fullName = 'Just a name'
+        const teacher1 = this.teachersRepository.create({
+            fullName:'Just a name'
+        })
         await this.teachersRepository.save(teacher1)
 
-        const teacher2 = new Teacher()
-        teacher2.fullName = 'Just a name2'
-        await this.teachersRepository.save(teacher2)
+        // const teacher = new Teacher()
+        // teacher.fullName = 'teacher1'
+        // const savedTeacher2 = await this.teachersRepository.save(teacher)
+
+        console.log(teacher1)
 
         const newStudent = this.studentsRepository.create(studentDto)
-        newStudent.teachers = [teacher1, teacher2]
-        await this.teachersRepository.save(newStudent)
+        newStudent.teachers = [teacher1]
+        await this.studentsRepository.save(newStudent)
 
         return newStudent
     }
 
-    async removeStudent(id: number): Promise<Student> {
+    async removeStudent(id: string): Promise<Student> {
         const student = await this.getStudentById(id)
 
         return await this.studentsRepository.remove(student)
     }
 
-    async removeTeacher(id: number): Promise<Teacher> {
+    async removeTeacher(id: string): Promise<Teacher> {
         const teacher = await this.getTeacherById(id)
 
         return await this.teachersRepository.remove(teacher)
     }
 
 
-    async updateStudent(id: number, studentDto: UpdateStudentDto): Promise<Student> {
+    async updateStudent(id: string, studentDto: UpdateStudentDto): Promise<Student> {
         await this.studentsRepository.update({ id }, studentDto)
         return await this.studentsRepository.findOne({ id })
     }
 
-    async updateTeacher(id: number, teacherDto: Partial<UpdateTeacherDto>): Promise<Teacher> {
+    async updateTeacher(id: string, teacherDto: Partial<UpdateTeacherDto>): Promise<Teacher> {
         await this.teachersRepository.update({ id }, teacherDto)
         return await this.teachersRepository.findOne({ id })
     }

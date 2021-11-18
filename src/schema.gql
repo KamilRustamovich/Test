@@ -1,0 +1,53 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Teacher {
+  id: ID!
+  fullName: String!
+  students: Student
+}
+
+type Student {
+  id: ID!
+  fullName: String!
+  teachers: Teacher
+}
+
+type Query {
+  findAllStudent: [Student!]!
+  findOneStudent(id: ID!): Student!
+  findAllTeachers: [Teacher!]!
+  findOneTeacher(id: ID!): Teacher!
+}
+
+type Mutation {
+  createStudent(createStudentDto: CreateStudentDto!): Student!
+  updateStudent(updateStudent: UpdateStudentDto!): Student!
+  removeStudent(id: ID!): Student!
+  createTeacher(createTeacherDto: CreateTeacherDto!): Teacher!
+  updateTeacher(createTeacherDto: UpdateTeacherDto!): Teacher!
+  removeTeacher(id: ID!): Teacher!
+}
+
+input CreateStudentDto {
+  fullName: String!
+  teachers: CreateTeacherDto
+}
+
+input CreateTeacherDto {
+  fullName: String!
+  students: CreateStudentDto
+}
+
+input UpdateStudentDto {
+  id: ID!
+  fullName: String!
+  teachers: CreateTeacherDto
+}
+
+input UpdateTeacherDto {
+  id: ID!
+  fullName: String!
+  students: CreateStudentDto
+}

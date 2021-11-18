@@ -1,16 +1,20 @@
-
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, ManyToMany, JoinTable, ObjectIdColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { Student } from './student.entity';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
+@ObjectType()
 @Entity()
 export class Teacher {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @Field(() => ID)
+  @ObjectIdColumn()
+  id: string;
 
+  @Field()
   @Column()
   fullName: string;
 
-  @ManyToMany(() => Student, student => student.teachers, { cascade: true } )
+  @Field(() => Student, { nullable: true })
+  @ManyToMany(() => Student, student => student.teachers)
   @JoinTable()
   students: Student[];
 }
