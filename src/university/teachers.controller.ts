@@ -17,7 +17,7 @@ import { getConnection } from "typeorm";
 export class TeachersController {
 
     constructor(private readonly UniversityService: UniversityService) {     
-    }
+    };
 
     @Get()
     async getAllTeachers(): Promise<Teacher[]> {
